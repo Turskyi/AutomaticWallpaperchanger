@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    android:layout_marginEnd="32dp"
+    android:paddingTop="@dimen/offset_4"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/aciv"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:scaleType="centerCrop" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/acivHandle"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="@dimen/offset_4"
+            android:layout_gravity="end|center_vertical"
+            android:background="@drawable/circle"
+            android:src="@drawable/ic_drag_handle"
+            android:tint="@color/colorPrimaryDark"/>
+
+</FrameLayout>

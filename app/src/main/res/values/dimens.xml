@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="offset_4">4dp</dimen>
+    <dimen name="offset_40">40dp</dimen>
+    <dimen name="textAppearanceHeadline3">48sp</dimen>
+</resources>

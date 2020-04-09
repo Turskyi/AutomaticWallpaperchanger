@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Automatic Wallpaperchanger</string>
+    <string name="image_with_no_permission_sign">image with no permission sign</string>
+    <string name="main_msg_tap_to_give_permission">TAP TO GIVE PERMISSION</string>
+    <string name="main_btn_txt_start">start scheduling</string>
+    <string name="main_btn_txt_stop">stop scheduling</string>
+    <string name="main_btn_txt_add_pictures">add pictures</string>
+    <string name="main_tv_delay">Delay</string>
+    <string name="main_tv_interval">Interval</string>
+    <string name="main_chooser_title">Select a picture</string>
+    <string name="main_toast_wrong_result">Wrong result</string>
+    <string name="image">image</string>
+</resources>
