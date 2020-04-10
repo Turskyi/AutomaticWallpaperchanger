@@ -1,5 +1,5 @@
 package ua.turskyi.automaticwallpaperchanger.ui.main.model
 
-import android.graphics.Bitmap
+import android.net.Uri
 
-data class PictureModel(var bitmap: Bitmap)
+data class PictureModel(var uri: Uri)

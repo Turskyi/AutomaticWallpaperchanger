@@ -16,8 +16,8 @@ class MainViewModel(application: Application) : BaseViewModel(application) {
 
     private val database = PicturesDataBase.getInstance(application)
     private val picturesRepository = database?.let { PictureListRepository(it) }
-    private val _picturesFromDb = MutableLiveData<MutableList<PictureModel?>>()
-    val picturesFromDB: MutableLiveData<MutableList<PictureModel?>>
+    private val _picturesFromDb = MutableLiveData<MutableList<PictureModel>>()
+    val picturesFromDB: MutableLiveData<MutableList<PictureModel>>
         get() = _picturesFromDb
 
     fun addPicturesToDB(pictures: ArrayList<PictureModel>) {

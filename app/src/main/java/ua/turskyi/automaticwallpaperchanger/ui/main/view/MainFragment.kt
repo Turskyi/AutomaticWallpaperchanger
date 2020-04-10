@@ -28,7 +28,6 @@ import ua.turskyi.automaticwallpaperchanger.ui.main.view.adapter.PicturesAdapter
 import ua.turskyi.automaticwallpaperchanger.ui.main.viewmodel.MainViewModel
 import ua.turskyi.automaticwallpaperchanger.util.getHour
 import ua.turskyi.automaticwallpaperchanger.util.getMinute
-import ua.turskyi.automaticwallpaperchanger.util.mapUriToBitMap
 import ua.turskyi.automaticwallpaperchanger.work.ChangingWallpaperWork
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -149,7 +148,7 @@ class MainFragment : Fragment(R.layout.main_fragment), NumberPicker.OnValueChang
         })
     }
 
-    private fun updateAdapter(pictures: MutableList<PictureModel?>) {
+    private fun updateAdapter(pictures: MutableList<PictureModel>) {
         adapter.setData(pictures)
     }
 
@@ -164,7 +163,7 @@ class MainFragment : Fragment(R.layout.main_fragment), NumberPicker.OnValueChang
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             val uri: Uri? = data?.data
-            val picture = uri?.mapUriToBitMap(App.instance)?.let { PictureModel(it) }
+            val picture = uri?.let { PictureModel(it) }
             pictureList.plusAssign(picture!!)
             viewModel.addPicturesToDB(pictureList)
         } else {

@@ -12,10 +12,7 @@ import ua.turskyi.automaticwallpaperchanger.data.Constants.LOGS
 import ua.turskyi.automaticwallpaperchanger.data.Constants.WORK_TAG
 import ua.turskyi.automaticwallpaperchanger.data.room.PicturesDataBase
 import ua.turskyi.automaticwallpaperchanger.prefs
-import ua.turskyi.automaticwallpaperchanger.util.getHour
-import ua.turskyi.automaticwallpaperchanger.util.getMinute
-import ua.turskyi.automaticwallpaperchanger.util.mapEntityListToModelList
-import ua.turskyi.automaticwallpaperchanger.util.vibratePhone
+import ua.turskyi.automaticwallpaperchanger.util.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -60,7 +57,7 @@ class ChangingWallpaperWork(context: Context, params: WorkerParameters) : Worker
         val localPictures = database?.picturesDAO()?.getLocalPictures()
         val total = database?.picturesDAO()?.getTotalNum()
         val pictures = localPictures?.mapEntityListToModelList()
-        val scheduledPicture = pictures?.get(next)?.bitmap
+        val scheduledPicture = pictures?.get(next)?.uri?.mapUriToBitMap(applicationContext)
         val wallpaperManager = WallpaperManager.getInstance(applicationContext)
         Log.d(LOGS, "before load")
         wallpaperManager.setBitmap(scheduledPicture)
