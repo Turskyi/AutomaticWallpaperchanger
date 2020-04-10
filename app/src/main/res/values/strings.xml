@@ -8,6 +8,6 @@
     <string name="main_tv_delay">Delay</string>
     <string name="main_tv_interval">Interval</string>
     <string name="main_chooser_title">Select a picture</string>
-    <string name="main_toast_wrong_result">Wrong result</string>
+    <string name="main_toast_wrong_result">NO PICTURE</string>
     <string name="image">image</string>
 </resources>

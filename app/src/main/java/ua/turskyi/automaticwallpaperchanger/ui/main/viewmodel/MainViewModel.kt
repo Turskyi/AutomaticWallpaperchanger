@@ -1,7 +1,6 @@
 package ua.turskyi.automaticwallpaperchanger.ui.main.viewmodel
 
 import android.app.Application
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -10,17 +9,18 @@ import kotlinx.coroutines.launch
 import ua.turskyi.automaticwallpaperchanger.common.BaseViewModel
 import ua.turskyi.automaticwallpaperchanger.data.repository.PictureListRepository
 import ua.turskyi.automaticwallpaperchanger.data.room.PicturesDataBase
-import ua.turskyi.automaticwallpaperchanger.ui.main.model.PictureUri
+import ua.turskyi.automaticwallpaperchanger.ui.main.model.PictureModel
+import ua.turskyi.automaticwallpaperchanger.util.mapEntityListToModelList
 
 class MainViewModel(application: Application) : BaseViewModel(application) {
 
     private val database = PicturesDataBase.getInstance(application)
     private val picturesRepository = database?.let { PictureListRepository(it) }
-    private val _picturesFromRxDB = MutableLiveData<MutableList<PictureUri>>()
-    val picturesFromRxDB: MutableLiveData<MutableList<PictureUri>>
-        get() = _picturesFromRxDB
+    private val _picturesFromDb = MutableLiveData<MutableList<PictureModel?>>()
+    val picturesFromDB: MutableLiveData<MutableList<PictureModel?>>
+        get() = _picturesFromDb
 
-    fun addPicturesToDB(pictures: MutableList<PictureUri>){
+    fun addPicturesToDB(pictures: ArrayList<PictureModel>) {
         val task = picturesRepository?.addPicturesToDB(pictures)
         val thread = Thread(task)
         thread.start()
@@ -34,16 +34,11 @@ class MainViewModel(application: Application) : BaseViewModel(application) {
     }
 
     private fun getPicturesFromDB() {
-        val picturesDbDisposable = database?.pictureDAO()?.getRxLiveAll()
+        val picturesDbDisposable = database?.picturesDAO()?.getLocalPicturesRx()
             ?.subscribeOn(Schedulers.io())
             ?.observeOn(Schedulers.io())
             ?.subscribe({ picturesFromDb ->
-                val pictures = mutableListOf<PictureUri>()
-                for (picture in picturesFromDb){
-                    val mUri: Uri = Uri.parse(picture.uriPath)
-                    pictures.add(PictureUri(mUri))
-                }
-                _picturesFromRxDB.postValue(pictures)
+                _picturesFromDb.postValue(picturesFromDb.mapEntityListToModelList())
             }, { throwable ->
                 Log.d(throwable.message, "error :(")
             })

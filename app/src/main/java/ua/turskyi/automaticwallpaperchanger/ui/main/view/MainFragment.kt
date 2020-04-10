@@ -4,7 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.NumberPicker
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -18,15 +21,18 @@ import ua.turskyi.automaticwallpaperchanger.R
 import ua.turskyi.automaticwallpaperchanger.data.Constants
 import ua.turskyi.automaticwallpaperchanger.data.Constants.INTERVAL_KEY
 import ua.turskyi.automaticwallpaperchanger.data.Constants.PICK_IMAGE_NUM
+import ua.turskyi.automaticwallpaperchanger.data.Constants.WORK_TAG
 import ua.turskyi.automaticwallpaperchanger.prefs
-import ua.turskyi.automaticwallpaperchanger.ui.main.model.PictureUri
+import ua.turskyi.automaticwallpaperchanger.ui.main.model.PictureModel
 import ua.turskyi.automaticwallpaperchanger.ui.main.view.adapter.PicturesAdapter
 import ua.turskyi.automaticwallpaperchanger.ui.main.viewmodel.MainViewModel
 import ua.turskyi.automaticwallpaperchanger.util.getHour
 import ua.turskyi.automaticwallpaperchanger.util.getMinute
+import ua.turskyi.automaticwallpaperchanger.util.mapUriToBitMap
 import ua.turskyi.automaticwallpaperchanger.work.ChangingWallpaperWork
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 class MainFragment : Fragment(R.layout.main_fragment), NumberPicker.OnValueChangeListener {
 
@@ -36,25 +42,25 @@ class MainFragment : Fragment(R.layout.main_fragment), NumberPicker.OnValueChang
 
     private lateinit var viewModel: MainViewModel
     private lateinit var adapter: PicturesAdapter
-    lateinit var pictureList: MutableList<PictureUri>
+    lateinit var pictureList: ArrayList<PictureModel>
+    private val workManager: WorkManager = WorkManager.getInstance(App.instance)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-
         initView()
         initListeners()
         initObservers()
     }
 
     private fun initView() {
-        pictureList = mutableListOf()
+        pictureList = ArrayList()
         if (prefs.changingStarted) {
             btnStartStop.text = getString(R.string.main_btn_txt_stop)
         } else {
             btnStartStop.text = getString(R.string.main_btn_txt_start)
         }
-        npDelay.minValue = 1
+        npDelay.minValue = 0
         npDelay.maxValue = 9
         npInterval.minValue = 1
         npInterval.maxValue = 9
@@ -71,31 +77,33 @@ class MainFragment : Fragment(R.layout.main_fragment), NumberPicker.OnValueChang
         btnStartStop.setOnClickListener {
             when (prefs.changingStarted) {
                 false -> {
-                    toast("wallpaper changing started")
                     btnStartStop.text = getString(R.string.main_btn_txt_stop)
                     prefs.changingStarted = true
-                    //TODO: implement start schedule wallpaper changing"
                     scheduleWallpaperChanging()
+                    toast("wallpaper changing started")
                 }
                 true -> {
-                    toast("wallpaper changing stopped")
                     btnStartStop.text = getString(R.string.main_btn_txt_start)
                     prefs.changingStarted = false
-                    //TODO: implement stop schedule wallpaper changing
+                    workManager.cancelAllWorkByTag(WORK_TAG)
+                    toast("wallpaper changing stopped")
                 }
             }
         }
 
-        btnAddPicture.setOnClickListener {
-            addPicture()
-        }
+        btnAddPicture.setOnClickListener { addPicture() }
 
         npDelay.setOnValueChangedListener(this)
         npInterval.setOnValueChangedListener(this)
     }
 
+    private fun createInputData(): Data {
+        return Data.Builder()
+            .putInt(INTERVAL_KEY, npInterval.value)
+            .build()
+    }
+
     private fun scheduleWallpaperChanging() {
-        val data = Data.Builder().putInt(INTERVAL_KEY, npInterval.value).build()
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
@@ -115,35 +123,33 @@ class MainFragment : Fragment(R.layout.main_fragment), NumberPicker.OnValueChang
         val wallpaperChangingWork = OneTimeWorkRequest
             .Builder(ChangingWallpaperWork::class.java)
             .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
-            .setInputData(data)
+            .setInputData(createInputData())
+            .addTag(WORK_TAG)
             .setConstraints(constraints)
             .build()
-        WorkManager.getInstance(App.instance).enqueue(wallpaperChangingWork)
+        workManager.enqueue(wallpaperChangingWork)
     }
 
     private fun addPicture() {
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(
-            Intent.createChooser(
-                intent,
-                getString(R.string.main_chooser_title)
-            ), PICK_IMAGE_NUM
-        )
+        val i = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(i, PICK_IMAGE_NUM)
     }
 
     private fun initObservers() {
-        viewModel.picturesFromRxDB.observe(
+        viewModel.picturesFromDB.observe(
             viewLifecycleOwner, Observer { pictures ->
                 updateAdapter(pictures)
+                when {
+                    pictures.isEmpty() -> btnStartStop.visibility = GONE
+                    else -> btnStartStop.visibility = VISIBLE
+                }
             })
         adapter.visibilityLoader.observe(viewLifecycleOwner, Observer { currentVisibility ->
             pb.visibility = currentVisibility
         })
     }
 
-    private fun updateAdapter(pictures: MutableList<PictureUri>) {
+    private fun updateAdapter(pictures: MutableList<PictureModel?>) {
         adapter.setData(pictures)
     }
 
@@ -158,8 +164,8 @@ class MainFragment : Fragment(R.layout.main_fragment), NumberPicker.OnValueChang
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             val uri: Uri? = data?.data
-            val picture = PictureUri(uri)
-            pictureList.plusAssign(picture)
+            val picture = uri?.mapUriToBitMap(App.instance)?.let { PictureModel(it) }
+            pictureList.plusAssign(picture!!)
             viewModel.addPicturesToDB(pictureList)
         } else {
             toast(getString(R.string.main_toast_wrong_result))

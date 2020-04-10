@@ -1,6 +1,6 @@
 package ua.turskyi.automaticwallpaperchanger.ui.main.view.adapter
 
-import android.net.Uri
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,17 +15,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ua.turskyi.automaticwallpaperchanger.R
-import ua.turskyi.automaticwallpaperchanger.ui.main.model.PictureUri
+import ua.turskyi.automaticwallpaperchanger.ui.main.model.PictureModel
 
 class PicturesAdapter : RecyclerView.Adapter<PicturesAdapter.ItemViewHolder>() {
 
     private val adapterScope = CoroutineScope(Dispatchers.Default)
-    private val pictures: MutableList<PictureUri> = mutableListOf()
+    private val pictures: MutableList<PictureModel?> = mutableListOf()
     private val _visibilityLoader = MutableLiveData<Int>()
     val visibilityLoader: MutableLiveData<Int>
         get() = _visibilityLoader
 
-    fun setData(newPictures: MutableList<PictureUri>) {
+    fun setData(newPictures: MutableList<PictureModel?>) {
         _visibilityLoader.postValue(View.VISIBLE)
         this.pictures.clear()
         this.pictures.addAll(newPictures)
@@ -46,9 +46,10 @@ class PicturesAdapter : RecyclerView.Adapter<PicturesAdapter.ItemViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val uri: Uri? = pictures[position].uri
+        val bitmap: Bitmap = pictures[position]!!.bitmap
         Glide.with(holder.itemView.context)
-            .load(uri)
+            .asBitmap()
+            .load(bitmap)
             .apply(
                 RequestOptions()
                     .placeholder(R.drawable.loading_animation)

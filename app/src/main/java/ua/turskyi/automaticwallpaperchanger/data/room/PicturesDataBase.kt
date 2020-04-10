@@ -1,17 +1,16 @@
 package ua.turskyi.automaticwallpaperchanger.data.room
 
 import android.content.Context
-import android.graphics.Picture
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import ua.turskyi.automaticwallpaperchanger.data.room.dao.PictureDAO
+import ua.turskyi.automaticwallpaperchanger.data.room.dao.PicturesDAO
 import ua.turskyi.automaticwallpaperchanger.data.room.model.PictureLocal
 
 @Database(entities = [PictureLocal::class], version = 1, exportSchema = false)
 abstract class PicturesDataBase : RoomDatabase() {
 
-    abstract fun pictureDAO(): PictureDAO
+    abstract fun picturesDAO(): PicturesDAO
 
     companion object {
 
