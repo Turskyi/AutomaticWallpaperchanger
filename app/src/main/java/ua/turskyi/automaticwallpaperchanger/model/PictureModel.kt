@@ -1,4 +1,4 @@
-package ua.turskyi.automaticwallpaperchanger.ui.main.model
+package ua.turskyi.automaticwallpaperchanger.model
 
 import android.net.Uri
 

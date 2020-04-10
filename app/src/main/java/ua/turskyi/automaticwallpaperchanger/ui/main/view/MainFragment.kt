@@ -1,15 +1,12 @@
 package ua.turskyi.automaticwallpaperchanger.ui.main.view
 
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.NumberPicker
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,18 +17,18 @@ import ua.turskyi.automaticwallpaperchanger.App
 import ua.turskyi.automaticwallpaperchanger.R
 import ua.turskyi.automaticwallpaperchanger.data.Constants
 import ua.turskyi.automaticwallpaperchanger.data.Constants.INTERVAL_KEY
-import ua.turskyi.automaticwallpaperchanger.data.Constants.PICK_IMAGE_NUM
 import ua.turskyi.automaticwallpaperchanger.data.Constants.WORK_TAG
+import ua.turskyi.automaticwallpaperchanger.data.DataController
+import ua.turskyi.automaticwallpaperchanger.model.PictureModel
 import ua.turskyi.automaticwallpaperchanger.prefs
-import ua.turskyi.automaticwallpaperchanger.ui.main.model.PictureModel
 import ua.turskyi.automaticwallpaperchanger.ui.main.view.adapter.PicturesAdapter
 import ua.turskyi.automaticwallpaperchanger.ui.main.viewmodel.MainViewModel
+import ua.turskyi.automaticwallpaperchanger.ui.pictures.view.PicturesFragment
 import ua.turskyi.automaticwallpaperchanger.util.getHour
 import ua.turskyi.automaticwallpaperchanger.util.getMinute
 import ua.turskyi.automaticwallpaperchanger.work.ChangingWallpaperWork
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
 
 class MainFragment : Fragment(R.layout.main_fragment), NumberPicker.OnValueChangeListener {
 
@@ -41,19 +38,17 @@ class MainFragment : Fragment(R.layout.main_fragment), NumberPicker.OnValueChang
 
     private lateinit var viewModel: MainViewModel
     private lateinit var adapter: PicturesAdapter
-    lateinit var pictureList: ArrayList<PictureModel>
     private val workManager: WorkManager = WorkManager.getInstance(App.instance)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
         initView()
         initListeners()
         initObservers()
     }
 
     private fun initView() {
-        pictureList = ArrayList()
         if (prefs.changingStarted) {
             btnStartStop.text = getString(R.string.main_btn_txt_stop)
         } else {
@@ -130,11 +125,22 @@ class MainFragment : Fragment(R.layout.main_fragment), NumberPicker.OnValueChang
     }
 
     private fun addPicture() {
-        val i = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(i, PICK_IMAGE_NUM)
+        val fragmentManager: FragmentTransaction? =
+            activity?.supportFragmentManager?.beginTransaction()
+        val detailedFragment =
+            PicturesFragment()
+        fragmentManager?.replace(
+                R.id.container,
+                detailedFragment
+            )
+            ?.addToBackStack(null)?.commit()
     }
 
     private fun initObservers() {
+        DataController.getInstance().picturesFromUi.observe(viewLifecycleOwner, Observer {
+            viewModel.addPicturesToDB(it)
+        })
+
         viewModel.picturesFromDB.observe(
             viewLifecycleOwner, Observer { pictures ->
                 updateAdapter(pictures)
@@ -156,18 +162,6 @@ class MainFragment : Fragment(R.layout.main_fragment), NumberPicker.OnValueChang
         when (numberPicker) {
             npDelay -> toast("Changing will start in $newMinute minutes")
             npInterval -> toast("Interval between changing $newMinute minutes")
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            val uri: Uri? = data?.data
-            val picture = uri?.let { PictureModel(it) }
-            pictureList.plusAssign(picture!!)
-            viewModel.addPicturesToDB(pictureList)
-        } else {
-            toast(getString(R.string.main_toast_wrong_result))
         }
     }
 }

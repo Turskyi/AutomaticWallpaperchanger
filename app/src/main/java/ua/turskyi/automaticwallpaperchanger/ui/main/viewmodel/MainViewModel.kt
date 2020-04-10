@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import ua.turskyi.automaticwallpaperchanger.common.BaseViewModel
 import ua.turskyi.automaticwallpaperchanger.data.repository.PictureListRepository
 import ua.turskyi.automaticwallpaperchanger.data.room.PicturesDataBase
-import ua.turskyi.automaticwallpaperchanger.ui.main.model.PictureModel
+import ua.turskyi.automaticwallpaperchanger.model.PictureModel
 import ua.turskyi.automaticwallpaperchanger.util.mapEntityListToModelList
 
 class MainViewModel(application: Application) : BaseViewModel(application) {
@@ -20,17 +20,17 @@ class MainViewModel(application: Application) : BaseViewModel(application) {
     val picturesFromDB: MutableLiveData<MutableList<PictureModel>>
         get() = _picturesFromDb
 
-    fun addPicturesToDB(pictures: ArrayList<PictureModel>) {
-        val task = picturesRepository?.addPicturesToDB(pictures)
-        val thread = Thread(task)
-        thread.start()
-        getPicturesFromDB()
-    }
-
     init {
         viewModelScope.launch {
             getPicturesFromDB()
         }
+    }
+
+    fun addPicturesToDB(pictures: MutableList<PictureModel>) {
+        val task = picturesRepository?.addPicturesToDB(pictures)
+        val thread = Thread(task)
+        thread.start()
+        getPicturesFromDB()
     }
 
     private fun getPicturesFromDB() {

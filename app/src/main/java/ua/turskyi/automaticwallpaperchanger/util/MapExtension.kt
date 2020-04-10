@@ -7,7 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import ua.turskyi.automaticwallpaperchanger.data.room.model.PictureLocal
-import ua.turskyi.automaticwallpaperchanger.ui.main.model.PictureModel
+import ua.turskyi.automaticwallpaperchanger.model.PictureModel
 
 fun MutableList<PictureModel>.mapModelListToEntityListWithIndex(): MutableList<PictureLocal> {
     val picturesLocal = mutableListOf<PictureLocal>()

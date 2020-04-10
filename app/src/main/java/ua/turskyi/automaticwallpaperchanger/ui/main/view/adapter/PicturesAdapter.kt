@@ -1,6 +1,5 @@
 package ua.turskyi.automaticwallpaperchanger.ui.main.view.adapter
 
-import android.graphics.Bitmap
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ua.turskyi.automaticwallpaperchanger.R
-import ua.turskyi.automaticwallpaperchanger.ui.main.model.PictureModel
+import ua.turskyi.automaticwallpaperchanger.model.PictureModel
 
 class PicturesAdapter : RecyclerView.Adapter<PicturesAdapter.ItemViewHolder>() {
 
