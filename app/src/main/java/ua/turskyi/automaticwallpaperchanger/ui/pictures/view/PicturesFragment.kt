@@ -40,10 +40,7 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures) {
     }
 
     private fun initView() {
-        val outValue = TypedValue()
-        context?.theme?.resolveAttribute(R.attr.selectableItemBackgroundBorderless, outValue, true)
-        btnArrowBack.setBackgroundResource(outValue.resourceId)
-
+        makeBtnClickable()
         gridLayoutManager?.spanCount = 2
         gridViewAdapter = PictureGridAdapter { picture ->
             picturesViewModel.addPictureToDB(picture)
@@ -56,6 +53,12 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures) {
         }
         gridViewAdapter.submitList(picturesViewModel.pagedList)
         updateLayoutManager()
+    }
+
+    private fun makeBtnClickable() {
+        val outValue = TypedValue()
+        context?.theme?.resolveAttribute(R.attr.selectableItemBackgroundBorderless, outValue, true)
+        btnArrowBack.setBackgroundResource(outValue.resourceId)
     }
 
     private fun updateLayoutManager() {
