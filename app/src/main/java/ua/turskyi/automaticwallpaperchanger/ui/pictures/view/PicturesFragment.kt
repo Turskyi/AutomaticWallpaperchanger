@@ -1,16 +1,19 @@
 package ua.turskyi.automaticwallpaperchanger.ui.pictures.view
 
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.fragment_pictures.*
+import kotlinx.android.synthetic.main.toolbar.*
 import ua.turskyi.automaticwallpaperchanger.R
 import ua.turskyi.automaticwallpaperchanger.ui.main.view.MainFragment
 import ua.turskyi.automaticwallpaperchanger.ui.pictures.view.adapter.PictureGridAdapter
 import ua.turskyi.automaticwallpaperchanger.ui.pictures.viewmodel.PicturesViewModel
+
 
 class PicturesFragment : Fragment(R.layout.fragment_pictures) {
 
@@ -26,13 +29,22 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateFragment()
+        initView()
+        initListener()
     }
 
-    private fun updateFragment() {
+    private fun initListener() {
+        btnArrowBack.setOnClickListener {
+            activity?.onBackPressed()
+        }
+    }
+
+    private fun initView() {
+        val outValue = TypedValue()
+        context?.theme?.resolveAttribute(R.attr.selectableItemBackgroundBorderless, outValue, true)
+        btnArrowBack.setBackgroundResource(outValue.resourceId)
 
         gridLayoutManager?.spanCount = 2
-
         gridViewAdapter = PictureGridAdapter { picture ->
             picturesViewModel.addPictureToDB(picture)
             val fragmentManager: FragmentTransaction? =
@@ -43,10 +55,6 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures) {
             )?.addToBackStack(null)?.commit()
         }
         gridViewAdapter.submitList(picturesViewModel.pagedList)
-
-        /**
-         *@Description gets number of columns and switch between listView and gridView
-         * */
         updateLayoutManager()
     }
 
