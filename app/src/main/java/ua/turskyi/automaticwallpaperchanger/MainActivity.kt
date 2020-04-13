@@ -11,6 +11,7 @@ import ua.turskyi.automaticwallpaperchanger.common.BaseActivity
 import ua.turskyi.automaticwallpaperchanger.data.Constants.PERMISSION_EXTERNAL_STORAGE
 import ua.turskyi.automaticwallpaperchanger.ui.main.view.MainFragment
 
+
 class MainActivity : BaseActivity(R.layout.main_activity) {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -13,4 +13,5 @@
     <string name="checkbox">checkbox</string>
     <string name="toolbar_title_choose_a_picture">Choose a picture</string>
     <string name="arrow">arrow</string>
+    <string name="btn_txt_upgrade">UPGRADE</string>
 </resources>

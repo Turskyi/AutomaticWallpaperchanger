@@ -1,4 +1,4 @@
-package ua.turskyi.automaticwallpaperchanger.work
+package ua.turskyi.automaticwallpaperchanger.service.work
 
 import android.app.WallpaperManager
 import android.content.Context

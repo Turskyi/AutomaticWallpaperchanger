@@ -71,6 +71,14 @@
         android:layout_height="wrap_content"
         android:text="@string/main_btn_txt_add_pictures" />
 
+    <Button
+        android:id="@+id/btnUpgrade"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_txt_upgrade" />
+
     <ProgressBar
         android:id="@+id/pb"
         android:visibility="gone"
