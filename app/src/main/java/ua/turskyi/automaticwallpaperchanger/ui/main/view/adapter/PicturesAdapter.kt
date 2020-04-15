@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 import ua.turskyi.automaticwallpaperchanger.R
 import ua.turskyi.automaticwallpaperchanger.model.PictureModel
 
-class PicturesAdapter : RecyclerView.Adapter<PicturesAdapter.ItemViewHolder>() {
+class PicturesAdapter(private val onPictureClickListener:(picture: PictureModel) -> Unit) : RecyclerView.Adapter<PicturesAdapter.ItemViewHolder>() {
 
     private val adapterScope = CoroutineScope(Dispatchers.Default)
     private val pictures: MutableList<PictureModel> = mutableListOf()
@@ -59,7 +59,12 @@ class PicturesAdapter : RecyclerView.Adapter<PicturesAdapter.ItemViewHolder>() {
 
     override fun getItemCount() = pictures.size
 
-    class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+  inner  class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val aciv: AppCompatImageView = itemView.aciv
+        init {
+            itemView.acivHandle.setOnClickListener {
+                onPictureClickListener.invoke(pictures[layoutPosition])
+            }
+        }
     }
 }

@@ -14,7 +14,6 @@ import ua.turskyi.automaticwallpaperchanger.ui.main.view.MainFragment
 import ua.turskyi.automaticwallpaperchanger.ui.pictures.view.adapter.PictureGridAdapter
 import ua.turskyi.automaticwallpaperchanger.ui.pictures.viewmodel.PicturesViewModel
 
-
 class PicturesFragment : Fragment(R.layout.fragment_pictures) {
 
     private lateinit var gridViewAdapter: PictureGridAdapter

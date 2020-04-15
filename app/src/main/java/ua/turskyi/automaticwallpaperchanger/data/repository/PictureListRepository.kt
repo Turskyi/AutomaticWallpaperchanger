@@ -2,11 +2,15 @@ package ua.turskyi.automaticwallpaperchanger.data.repository
 
 import ua.turskyi.automaticwallpaperchanger.data.room.PicturesDataBase
 import ua.turskyi.automaticwallpaperchanger.model.PictureModel
-import ua.turskyi.automaticwallpaperchanger.util.mapModelListToEntityListWithIndex
+import ua.turskyi.automaticwallpaperchanger.util.mapModelToEntity
 
 class PictureListRepository(private val database: PicturesDataBase) {
 
-     fun addPicturesToDB(picturesModel: MutableList<PictureModel>) = Runnable {
-        database.picturesDAO().insertAll(picturesModel.mapModelListToEntityListWithIndex())
+    fun addPictureToDB(picturesModel: PictureModel) = Runnable {
+        database.picturesDAO().insert(picturesModel.mapModelToEntity())
+    }
+
+    fun deletePicture(pictureModel: PictureModel) = Runnable {
+        database.picturesDAO().delete(pictureModel.mapModelToEntity())
     }
 }

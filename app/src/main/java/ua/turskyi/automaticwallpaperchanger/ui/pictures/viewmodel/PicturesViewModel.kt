@@ -8,7 +8,6 @@ import ua.turskyi.automaticwallpaperchanger.data.room.PicturesDataBase
 import ua.turskyi.automaticwallpaperchanger.model.PictureModel
 import ua.turskyi.automaticwallpaperchanger.ui.pictures.view.adapter.MainThreadExecutor
 import ua.turskyi.automaticwallpaperchanger.ui.pictures.view.adapter.PicturesPositionalDataSource
-import ua.turskyi.automaticwallpaperchanger.util.mapEntityListToModelList
 import java.util.concurrent.Executors
 
 class PicturesViewModel(application: Application) : BaseViewModel(application) {
@@ -33,9 +32,7 @@ class PicturesViewModel(application: Application) : BaseViewModel(application) {
 
     fun addPictureToDB(picture: PictureModel) {
         val task = Runnable {
-            val modelPictures = database?.picturesDAO()?.getLocalPictures()?.mapEntityListToModelList()
-           modelPictures?.plusAssign(picture)
-            DataController.getInstance().picturesFromUi.postValue(modelPictures)
+            DataController.getInstance().pictureFromUi.postValue(picture)
         }
         val thread = Thread(task)
         thread.start()

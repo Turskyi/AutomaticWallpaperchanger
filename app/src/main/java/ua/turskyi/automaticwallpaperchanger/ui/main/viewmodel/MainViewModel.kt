@@ -26,8 +26,15 @@ class MainViewModel(application: Application) : BaseViewModel(application) {
         }
     }
 
-    fun addPicturesToDB(pictures: MutableList<PictureModel>) {
-        val task = picturesRepository?.addPicturesToDB(pictures)
+    fun addPictureToDB(picture: PictureModel) {
+        val task = picturesRepository?.addPictureToDB(picture)
+        val thread = Thread(task)
+        thread.start()
+        getPicturesFromDB()
+    }
+
+    fun deleteWallpaper(pictureModel: PictureModel){
+        val task = picturesRepository?.deletePicture(pictureModel)
         val thread = Thread(task)
         thread.start()
         getPicturesFromDB()

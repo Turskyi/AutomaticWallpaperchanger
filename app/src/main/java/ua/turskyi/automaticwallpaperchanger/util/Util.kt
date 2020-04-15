@@ -4,9 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.webkit.MimeTypeMap
 import android.widget.TimePicker
-
 
 fun getHour(context: Context): Int {
     @Suppress("DEPRECATION")
@@ -37,13 +35,4 @@ fun vibratePhone(context: Context) {
         @Suppress("DEPRECATION")
         vibrator.vibrate(100)
     }
-}
-
-fun getMimeType(url: String): String? {
-    var type: String? = null
-    val extension = MimeTypeMap.getFileExtensionFromUrl(url)
-    if (extension != null) {
-        type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
-    }
-    return type
 }

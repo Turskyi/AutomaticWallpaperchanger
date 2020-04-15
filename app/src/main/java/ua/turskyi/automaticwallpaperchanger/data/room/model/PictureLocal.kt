@@ -7,10 +7,9 @@ import ua.turskyi.automaticwallpaperchanger.data.room.model.PictureLocal.Compani
 
 @Entity(tableName = TABLE_NAME)
 data class PictureLocal (
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = COLUMN_ID) var id: Int?,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = COLUMN_ID) var id: Long,
     @ColumnInfo(name = COLUMN_DATA) val pictureData: String
 ) {
-    constructor(pictureData: String) : this (null, pictureData)
     companion object {
         const val TABLE_NAME = "Pictures"
         const val COLUMN_ID = "id"

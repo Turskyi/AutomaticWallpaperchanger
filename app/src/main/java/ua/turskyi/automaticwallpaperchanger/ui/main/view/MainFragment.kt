@@ -34,7 +34,6 @@ import ua.turskyi.automaticwallpaperchanger.util.getMinute
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-
 class MainFragment : Fragment(R.layout.main_fragment)
     , NumberPicker.OnValueChangeListener
     , PurchasesUpdatedListener {
@@ -164,7 +163,10 @@ class MainFragment : Fragment(R.layout.main_fragment)
     }
 
     private fun initAdapter() {
-        adapter = PicturesAdapter()
+        adapter = PicturesAdapter {
+            toast("${it.uri}")
+            viewModel.deleteWallpaper(it)
+        }
         rvPictures.adapter = this.adapter
         rvPictures.layoutManager = LinearLayoutManager(activity)
     }
@@ -239,8 +241,8 @@ class MainFragment : Fragment(R.layout.main_fragment)
     }
 
     private fun initObservers() {
-        DataController.getInstance().picturesFromUi.observe(viewLifecycleOwner, Observer {
-            viewModel.addPicturesToDB(it)
+        DataController.getInstance().pictureFromUi.observe(viewLifecycleOwner, Observer {
+            viewModel.addPictureToDB(it)
         })
 
         viewModel.picturesFromDB.observe(

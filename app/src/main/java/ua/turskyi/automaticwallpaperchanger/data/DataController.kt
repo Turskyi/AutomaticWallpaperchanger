@@ -16,5 +16,5 @@ class DataController {
         }
     }
 
-    val picturesFromUi  = MutableLiveData<MutableList<PictureModel>>()
+    val pictureFromUi  = MutableLiveData<PictureModel>()
 }

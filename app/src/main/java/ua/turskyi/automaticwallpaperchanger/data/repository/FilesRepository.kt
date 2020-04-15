@@ -3,7 +3,6 @@ package ua.turskyi.automaticwallpaperchanger.data.repository
 import android.content.Context
 import android.net.Uri
 import android.os.Build
-import android.provider.MediaStore
 import android.provider.MediaStore.Images
 import ua.turskyi.automaticwallpaperchanger.model.PictureModel
 
@@ -25,15 +24,14 @@ class FilesRepository {
             columns, null, null, "$orderBy DESC"
         )
         cursor?.let {
-            val columnIndexID: Int = it.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+            val columnIndexID: Int = it.getColumnIndexOrThrow(Images.Media._ID)
             for (i in from until to + from) {
                 while (it.moveToNext() && i < it.columnCount) {
                 val id = it.getLong(columnIndexID)
-                    val uriImage =
-                        Uri.withAppendedPath(
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    val uriImage = Uri.withAppendedPath(
+                            Images.Media.EXTERNAL_CONTENT_URI,
                     "" + id)
-                val galleryPicture = PictureModel(uriImage)
+                    val galleryPicture = PictureModel(id, uriImage)
                         listOfImages.add(galleryPicture)
                 }
             }
