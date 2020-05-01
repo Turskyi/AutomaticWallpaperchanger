@@ -7,7 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import ua.turskyi.automaticwallpaperchanger.data.room.model.PictureLocal
-import ua.turskyi.automaticwallpaperchanger.model.PictureModel
+import ua.turskyi.automaticwallpaperchanger.model.Wallpaper
 
 fun Uri.mapUriToBitMap(context: Context): Bitmap =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -19,9 +19,9 @@ fun Uri.mapUriToBitMap(context: Context): Bitmap =
 
 fun Uri.mapUriToString(): String = this.toString()
 fun String.mapStringToUri(): Uri = Uri.parse(this)
-fun PictureLocal.mapEntityToModel() = PictureModel(id = id, uri = pictureData.mapStringToUri())
+fun PictureLocal.mapEntityToModel() = Wallpaper(id = id, uri = pictureData.mapStringToUri())
 
-fun PictureModel.mapModelToEntity() = PictureLocal(id = id, pictureData = uri.mapUriToString())
+fun Wallpaper.mapModelToEntity() = PictureLocal(id = id, pictureData = uri.mapUriToString())
 
 fun List<PictureLocal>.mapEntityListToModelList() = mapTo(
     mutableListOf(), {

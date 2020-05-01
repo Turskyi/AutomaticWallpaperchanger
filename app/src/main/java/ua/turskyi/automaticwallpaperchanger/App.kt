@@ -9,6 +9,7 @@ val prefs: Prefs by lazy {
 
 class App : Application(){
     companion object {
+        const val UNLOCK = "unlock==============>"
         var prefs: Prefs? = null
         lateinit var instance: App
     }

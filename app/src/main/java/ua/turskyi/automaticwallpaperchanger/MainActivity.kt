@@ -6,13 +6,13 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import kotlinx.android.synthetic.main.main_activity.*
+import kotlinx.android.synthetic.main.activity_main.*
 import ua.turskyi.automaticwallpaperchanger.common.BaseActivity
 import ua.turskyi.automaticwallpaperchanger.data.Constants.PERMISSION_EXTERNAL_STORAGE
 import ua.turskyi.automaticwallpaperchanger.ui.main.view.MainFragment
 
 
-class MainActivity : BaseActivity(R.layout.main_activity) {
+class MainActivity : BaseActivity(R.layout.activity_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

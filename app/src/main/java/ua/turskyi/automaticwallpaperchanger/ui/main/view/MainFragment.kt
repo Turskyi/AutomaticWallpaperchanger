@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.*
 import com.android.billingclient.api.*
 import com.android.billingclient.api.Purchase.PurchasesResult
-import kotlinx.android.synthetic.main.main_fragment.*
+import kotlinx.android.synthetic.main.fragment_main.*
 import splitties.toast.longToast
 import splitties.toast.toast
 import ua.turskyi.automaticwallpaperchanger.App
@@ -23,18 +23,16 @@ import ua.turskyi.automaticwallpaperchanger.data.Constants.INTERVAL_KEY
 import ua.turskyi.automaticwallpaperchanger.data.Constants.LOGS
 import ua.turskyi.automaticwallpaperchanger.data.Constants.WORK_TAG
 import ua.turskyi.automaticwallpaperchanger.data.DataController
-import ua.turskyi.automaticwallpaperchanger.model.PictureModel
+import ua.turskyi.automaticwallpaperchanger.model.Wallpaper
 import ua.turskyi.automaticwallpaperchanger.prefs
 import ua.turskyi.automaticwallpaperchanger.service.work.ChangingWallpaperWork
+import ua.turskyi.automaticwallpaperchanger.ui.gallery.view.GalleryFragment
 import ua.turskyi.automaticwallpaperchanger.ui.main.view.adapter.PicturesAdapter
 import ua.turskyi.automaticwallpaperchanger.ui.main.viewmodel.MainViewModel
-import ua.turskyi.automaticwallpaperchanger.ui.pictures.view.PicturesFragment
-import ua.turskyi.automaticwallpaperchanger.util.getHour
-import ua.turskyi.automaticwallpaperchanger.util.getMinute
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class MainFragment : Fragment(R.layout.main_fragment)
+class MainFragment : Fragment(R.layout.fragment_main)
     , NumberPicker.OnValueChangeListener
     , PurchasesUpdatedListener {
 
@@ -47,7 +45,7 @@ class MainFragment : Fragment(R.layout.main_fragment)
     private val workManager: WorkManager = WorkManager.getInstance(App.instance)
     private lateinit var billingClient: BillingClient
     private val mSkuDetailsMap: MutableMap<String, SkuDetails> = HashMap()
-    private val mSkuId = "sku_id_1"
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
@@ -57,100 +55,8 @@ class MainFragment : Fragment(R.layout.main_fragment)
         initBilling()
     }
 
-    private fun initBilling() {
-        billingClient = activity?.applicationContext?.let {
-            BillingClient.newBuilder(it).enablePendingPurchases().setListener(this).build()
-        }!!
-        billingClient.startConnection(object : BillingClientStateListener {
-            override fun onBillingSetupFinished(billingResult: BillingResult) {
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    Log.d(LOGS, "billingResult.responseCode ==  OK")
-                    // The BillingClient is ready. You can query purchases here.
-                    //здесь мы можем запросить информацию о товарах и покупках
-
-                    //запрос о товарах
-                    querySkuDetails()
-
-                    //запрос о покупках
-                    val purchasesList = queryPurchases()
-                    //если товар уже куплен, предоставить его пользователю
-                    for (i in 0 until purchasesList?.size!!) {
-                        val purchaseId = purchasesList[i]!!.sku
-                        if (TextUtils.equals(mSkuId, purchaseId)) {
-
-                            setUpdatedVersion()
-                            Log.d(LOGS, " upgrade purchased")
-                        }
-                    }
-                }
-            }
-
-            override fun onBillingServiceDisconnected() {
-                Log.d(LOGS, "billingResult.responseCode !=  OK")
-                //сюда мы попадем если что-то пойдет не так
-                // Try to restart the connection on the next request to
-                // Google Play by calling the startConnection() method.
-            }
-        })
-    }
-
-    private fun setUpdatedVersion() {
-        prefs.isUpgraded = true
-    }
-
-    private fun queryPurchases(): List<Purchase?>? {
-        val purchasesResult: PurchasesResult =
-            billingClient.queryPurchases(BillingClient.SkuType.INAPP)
-        return purchasesResult.purchasesList
-    }
-
-    private fun querySkuDetails() {
-        val skuDetailsParamsBuilder = SkuDetailsParams.newBuilder()
-        val skuList: MutableList<String> = ArrayList()
-        //здесь мы добавили id товара из Play Console
-        skuList.add(mSkuId)
-        skuDetailsParamsBuilder.setSkusList(skuList).setType(BillingClient.SkuType.INAPP)
-        billingClient.querySkuDetailsAsync(skuDetailsParamsBuilder.build()) { responseCode, skuDetailsList ->
-            if (responseCode.responseCode == BillingClient.BillingResponseCode.OK && skuDetailsList != null) {
-                for (skuDetails in skuDetailsList) {
-                    mSkuDetailsMap[skuDetails.sku] = skuDetails
-                }
-            }
-        }
-    }
-
-    //    В метод onPurchasesUpdated() мы попадаем когда покупка осуществлена
-    override fun onPurchasesUpdated(billingResult: BillingResult, purchases: List<Purchase>?) {
-        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
-            //сюда мы попадем когда будет осуществлена покупка
-            for (purchase in purchases) {
-                handlePurchase(purchase)
-            }
-        } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-            // Handle an error caused by a user cancelling the purchase flow.
-        } else {
-            // TODO: Handle any other error codes.
-            Log.d(LOGS, " other error")
-        }
-    }
-
-    private fun handlePurchase(purchase: Purchase) {
-        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-            setUpdatedVersion()
-            Log.d(LOGS, " upgrade purchased")
-            // Grant the item to the user, and then acknowledge the purchase
-        } else if (purchase.purchaseState == Purchase.PurchaseState.PENDING) {
-            // Here you can confirm to the user that they've started the pending
-            // purchase, and to complete it, they should follow instructions that
-            // are given to them. You can also choose to remind the user in the
-            // future to complete the purchase if you detect that it is still
-            // pending.
-            Log.d(LOGS, "user started purchase but not finished yet")
-        }
-    }
-
     private fun initView() {
-        if (prefs.changingStarted) {
+        if (prefs.isChangingStarted) {
             btnStartStop.text = getString(R.string.main_btn_txt_stop)
         } else {
             btnStartStop.text = getString(R.string.main_btn_txt_start)
@@ -172,20 +78,16 @@ class MainFragment : Fragment(R.layout.main_fragment)
     }
 
     private fun initListeners() {
-        btnAddPicture.setOnClickListener { addPicture() }
-        btnUpgrade.setOnClickListener { mSkuId.launchBilling() }
+        btnAddPicture.setOnClickListener { addWallpaper() }
+        btnUpgrade.setOnClickListener { viewModel.mSkuId.launchBilling() }
         btnStartStop.setOnClickListener {
-            when (prefs.changingStarted) {
+            when (prefs.isChangingStarted) {
                 false -> {
-                    btnStartStop.text = getString(R.string.main_btn_txt_stop)
-                    prefs.changingStarted = true
                     scheduleWallpaperChanging()
                     toast("wallpaper changing started")
                 }
                 true -> {
-                    btnStartStop.text = getString(R.string.main_btn_txt_start)
-                    prefs.changingStarted = false
-                    workManager.cancelAllWorkByTag(WORK_TAG)
+                    stopScheduleChanging()
                     toast("wallpaper changing stopped")
                 }
             }
@@ -195,6 +97,12 @@ class MainFragment : Fragment(R.layout.main_fragment)
         npInterval.setOnValueChangedListener(this)
     }
 
+    private fun stopScheduleChanging() {
+        btnStartStop.text = getString(R.string.main_btn_txt_start)
+        prefs.isChangingStarted = false
+        workManager.cancelAllWorkByTag(WORK_TAG)
+    }
+
     private fun createInputData(): Data {
         return Data.Builder()
             .putInt(INTERVAL_KEY, npInterval.value)
@@ -202,25 +110,14 @@ class MainFragment : Fragment(R.layout.main_fragment)
     }
 
     private fun scheduleWallpaperChanging() {
+        btnStartStop.text = getString(R.string.main_btn_txt_stop)
+        prefs.isChangingStarted = true
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
-        val currentTime = System.currentTimeMillis()
-        val dueTime: Calendar = Calendar.getInstance()
-        dueTime.set(Calendar.HOUR_OF_DAY, getHour(App.instance))
-        dueTime.set(Calendar.MINUTE, getMinute(App.instance) + npDelay.value)
-        Log.d(
-            LOGS,
-            "Wallpaper will change at " +
-                    "${getHour(App.instance)} hours " +
-                    "${(getMinute(App.instance) + npDelay.value)} minute"
-        )
-        dueTime.set(Calendar.SECOND, 0)
-        val timeDiff = dueTime.timeInMillis - currentTime
-
         val wallpaperChangingWork = OneTimeWorkRequest
             .Builder(ChangingWallpaperWork::class.java)
-            .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+            .setInitialDelay(2000, TimeUnit.MILLISECONDS)
             .setInputData(createInputData())
             .addTag(WORK_TAG)
             .setConstraints(constraints)
@@ -228,11 +125,10 @@ class MainFragment : Fragment(R.layout.main_fragment)
         workManager.enqueue(wallpaperChangingWork)
     }
 
-    private fun addPicture() {
+    private fun addWallpaper() {
         val fragmentManager: FragmentTransaction? =
             activity?.supportFragmentManager?.beginTransaction()
-        val detailedFragment =
-            PicturesFragment()
+        val detailedFragment = GalleryFragment()
         fragmentManager?.replace(
                 R.id.container,
                 detailedFragment
@@ -274,8 +170,8 @@ class MainFragment : Fragment(R.layout.main_fragment)
         })
     }
 
-    private fun updateAdapter(pictures: MutableList<PictureModel>) {
-        adapter.setData(pictures)
+    private fun updateAdapter(wallpapers: MutableList<Wallpaper>) {
+        adapter.setData(wallpapers)
     }
 
     private fun String?.launchBilling() {
@@ -290,6 +186,98 @@ class MainFragment : Fragment(R.layout.main_fragment)
         when (numberPicker) {
             npDelay -> toast("Changing will start in $newMinute minutes")
             npInterval -> toast("Interval between changing $newMinute minutes")
+        }
+    }
+
+    private fun initBilling() {
+        billingClient =
+            BillingClient.newBuilder(requireContext()).enablePendingPurchases().setListener(this)
+                .build()
+        billingClient.startConnection(object : BillingClientStateListener {
+            override fun onBillingSetupFinished(billingResult: BillingResult) {
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                    Log.d(LOGS, "billingResult.responseCode ==  OK")
+                    /* The BillingClient is ready. You can query purchases here. */
+                    /* here we can request information about purchases */
+
+                    /* Sku request */
+                    querySkuDetails()
+
+                    /* purchase request */
+                    val purchasesList = queryPurchases()
+                    /* if the product has already been purchased, provide it to the user */
+                    for (i in 0 until purchasesList?.size!!) {
+                        val purchaseId = purchasesList[i]!!.sku
+                        if (TextUtils.equals(viewModel.mSkuId, purchaseId)) {
+
+                            setUpdatedVersion()
+                            Log.d(LOGS, " upgrade purchased")
+                        }
+                    }
+                }
+            }
+
+            override fun onBillingServiceDisconnected() {
+                Log.d(LOGS, "billingResult.responseCode !=  OK")
+                /* we get here if something goes wrong */
+                /*   Try to restart the connection on the next request to
+                    Google Play by calling the startConnection() method.*/
+            }
+        })
+    }
+
+
+    private fun setUpdatedVersion() {
+        prefs.isUpgraded = true
+    }
+
+    private fun queryPurchases(): List<Purchase?>? {
+        val purchasesResult: PurchasesResult =
+            billingClient.queryPurchases(BillingClient.SkuType.INAPP)
+        return purchasesResult.purchasesList
+    }
+
+    private fun querySkuDetails() {
+        val skuDetailsParamsBuilder = SkuDetailsParams.newBuilder()
+        val skuList: MutableList<String> = ArrayList()
+        /* here we added the product id from the Play Console */
+        skuList.add(viewModel.mSkuId)
+        skuDetailsParamsBuilder.setSkusList(skuList).setType(BillingClient.SkuType.INAPP)
+        billingClient.querySkuDetailsAsync(skuDetailsParamsBuilder.build()) { responseCode, skuDetailsList ->
+            if (responseCode.responseCode == BillingClient.BillingResponseCode.OK && skuDetailsList != null) {
+                for (skuDetails in skuDetailsList) {
+                    mSkuDetailsMap[skuDetails.sku] = skuDetails
+                }
+            }
+        }
+    }
+
+    /* In the onPurchasesUpdated () method, we get when the purchase is completed. */
+    override fun onPurchasesUpdated(billingResult: BillingResult, purchases: List<Purchase>?) {
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
+/*            we will get here after the purchase is made */
+            for (purchase in purchases) {
+                handlePurchase(purchase)
+            }
+        } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
+            /* Handle an error caused by a user cancelling the purchase flow. */
+        } else {
+            Log.d(LOGS, " error onPurchasesUpdated ")
+        }
+    }
+
+    private fun handlePurchase(purchase: Purchase) {
+        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+            setUpdatedVersion()
+            Log.d(LOGS, " upgrade purchased")
+            /* Grant the item to the user, and then acknowledge the purchase */
+        } else if (purchase.purchaseState == Purchase.PurchaseState.PENDING) {
+            /* Here you can confirm to the user that they've started the pending
+             purchase, and to complete it, they should follow instructions that
+             are given to them. You can also choose to remind the user in the
+            future to complete the purchase if you detect that it is still
+             pending. */
+            Log.d(LOGS, "user started purchase but not finished yet")
         }
     }
 }

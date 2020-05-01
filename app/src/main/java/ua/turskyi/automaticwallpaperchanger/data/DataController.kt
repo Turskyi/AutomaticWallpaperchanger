@@ -1,7 +1,7 @@
 package ua.turskyi.automaticwallpaperchanger.data
 
 import androidx.lifecycle.MutableLiveData
-import ua.turskyi.automaticwallpaperchanger.model.PictureModel
+import ua.turskyi.automaticwallpaperchanger.model.Wallpaper
 
 class DataController {
 
@@ -16,5 +16,5 @@ class DataController {
         }
     }
 
-    val pictureFromUi  = MutableLiveData<PictureModel>()
+    val pictureFromUi  = MutableLiveData<Wallpaper>()
 }

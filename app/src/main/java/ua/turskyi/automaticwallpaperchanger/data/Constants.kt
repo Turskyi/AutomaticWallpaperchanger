@@ -6,5 +6,4 @@ object Constants {
     const val WORK_TAG = "WORK_TAG"
     const val WALLPAPER_CHANGING_WORK = "website_opening_work"
     const val LOGS = "BLOG"
-    const val TAG_DATA_SOURCE = "DataSource"
 }

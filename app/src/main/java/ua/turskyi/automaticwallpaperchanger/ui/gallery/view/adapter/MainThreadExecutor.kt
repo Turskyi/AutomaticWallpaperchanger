@@ -1,4 +1,4 @@
-package ua.turskyi.automaticwallpaperchanger.ui.pictures.view.adapter
+package ua.turskyi.automaticwallpaperchanger.ui.gallery.view.adapter
 
 import android.os.Handler
 import java.util.concurrent.Executor

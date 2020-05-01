@@ -4,14 +4,13 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore.Images
-import ua.turskyi.automaticwallpaperchanger.model.PictureModel
+import ua.turskyi.automaticwallpaperchanger.model.Wallpaper
 
-class FilesRepository {
+class PicturesRepository {
 
-    fun getDataOfImageList(from: Int, to: Int, context: Context): List<PictureModel> {
+    fun getImagesFromDevice(from: Int, to: Int, context: Context): List<Wallpaper> {
 
-        val listOfImages = mutableListOf<PictureModel>()
-        val columns = arrayOf(Images.Media._ID)
+        val listOfImages = mutableListOf<Wallpaper>()
 
         val orderBy =
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) Images.Media.DATE_TAKEN
@@ -20,8 +19,7 @@ class FilesRepository {
         /** This cursor will hold the result of the query
         and put all data in Cursor by sorting in descending order */
         val cursor = context.contentResolver.query(
-            Images.Media.EXTERNAL_CONTENT_URI,
-            columns, null, null, "$orderBy DESC"
+            Images.Media.EXTERNAL_CONTENT_URI,null, null, null, "$orderBy DESC"
         )
         cursor?.let {
             val columnIndexID: Int = it.getColumnIndexOrThrow(Images.Media._ID)
@@ -31,7 +29,7 @@ class FilesRepository {
                     val uriImage = Uri.withAppendedPath(
                             Images.Media.EXTERNAL_CONTENT_URI,
                     "" + id)
-                    val galleryPicture = PictureModel(id, uriImage)
+                    val galleryPicture = Wallpaper(id, uriImage)
                         listOfImages.add(galleryPicture)
                 }
             }

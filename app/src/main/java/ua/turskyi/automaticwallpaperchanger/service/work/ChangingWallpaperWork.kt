@@ -6,6 +6,7 @@ import android.os.Build
 import android.util.Log
 import androidx.work.*
 import androidx.work.ListenableWorker.Result.success
+import ua.turskyi.automaticwallpaperchanger.App.Companion.UNLOCK
 import ua.turskyi.automaticwallpaperchanger.data.Constants
 import ua.turskyi.automaticwallpaperchanger.data.Constants.INTERVAL_KEY
 import ua.turskyi.automaticwallpaperchanger.data.Constants.LOGS
@@ -16,10 +17,12 @@ import ua.turskyi.automaticwallpaperchanger.util.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class ChangingWallpaperWork(context: Context, params: WorkerParameters) : Worker(context, params) {
+class ChangingWallpaperWork(context: Context, params: WorkerParameters) :
+    Worker(context, params) {
 
     override fun doWork(): Result {
         try {
+
             val interval = inputData.getInt(INTERVAL_KEY, 2)
             changeWallpaper(prefs.nextPic)
             Log.d(LOGS, "next picture num ${prefs.nextPic}")
@@ -27,10 +30,6 @@ class ChangingWallpaperWork(context: Context, params: WorkerParameters) : Worker
             val dueTime = Calendar.getInstance()
             dueTime.set(Calendar.HOUR_OF_DAY, getHour(context = applicationContext))
             dueTime.set(Calendar.MINUTE, getMinute(context = applicationContext) + interval)
-            Log.d(
-                LOGS,
-                "Wallpaper will change at ${(getMinute(context = applicationContext) + interval)} minutes"
-            )
             dueTime.set(Calendar.SECOND, 0)
             val timeDiff = dueTime.timeInMillis - currentTime
             val intervalWorkRequest =
@@ -47,6 +46,7 @@ class ChangingWallpaperWork(context: Context, params: WorkerParameters) : Worker
             return success()
         } catch (e: Exception) {
             Log.d(LOGS, e.message!!)
+            Log.d(UNLOCK, "${e.message}")
             return Result.retry()
         }
     }
@@ -76,5 +76,10 @@ class ChangingWallpaperWork(context: Context, params: WorkerParameters) : Worker
         } else {
             Log.d(LOGS, "db is empty")
         }
+    }
+
+    override fun onStopped() {
+        super.onStopped()
+        Log.d(UNLOCK, "stop")
     }
 }

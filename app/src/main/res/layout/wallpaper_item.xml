@@ -19,8 +19,8 @@
             android:layout_height="36dp"
             android:padding="@dimen/offset_4"
             android:layout_gravity="end|center_vertical"
-            android:background="@drawable/circle"
-            android:src="@drawable/ic_drag_handle"
+            android:background="@drawable/ic_circle"
+            android:src="@drawable/ic_delete"
             android:tint="@color/colorPrimaryDark"/>
 
 </FrameLayout>
