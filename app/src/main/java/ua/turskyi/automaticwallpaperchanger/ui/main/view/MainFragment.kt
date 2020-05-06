@@ -1,13 +1,17 @@
 package ua.turskyi.automaticwallpaperchanger.ui.main.view
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.NumberPicker
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,7 +30,6 @@ import ua.turskyi.automaticwallpaperchanger.data.DataController
 import ua.turskyi.automaticwallpaperchanger.model.Wallpaper
 import ua.turskyi.automaticwallpaperchanger.prefs
 import ua.turskyi.automaticwallpaperchanger.service.work.ChangingWallpaperWork
-import ua.turskyi.automaticwallpaperchanger.ui.gallery.view.GalleryFragment
 import ua.turskyi.automaticwallpaperchanger.ui.main.view.adapter.PicturesAdapter
 import ua.turskyi.automaticwallpaperchanger.ui.main.viewmodel.MainViewModel
 import java.util.*
@@ -38,6 +41,7 @@ class MainFragment : Fragment(R.layout.fragment_main)
 
     companion object {
         fun newInstance() = MainFragment()
+        private const val PICK_IMAGE_NUM = 1
     }
 
     private lateinit var viewModel: MainViewModel
@@ -53,6 +57,49 @@ class MainFragment : Fragment(R.layout.fragment_main)
         initListeners()
         initObservers()
         initBilling()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == PICK_IMAGE_NUM && data != null) {
+                val uri: Uri? = data.data
+                val imageId = uri?.lastPathSegment?.takeLastWhile { it.isDigit() }?.toInt()
+                getContentUriFromUri(imageId)?.let {
+                    viewModel.addPictureToDB(
+                        it
+                    )
+                }
+            }
+        } else {
+            toast("did not choose anything")
+        }
+    }
+
+    private fun getContentUriFromUri(id: Int?): Wallpaper? {
+        val columns = arrayOf(MediaStore.Images.Media._ID)
+
+        val orderBy =
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) MediaStore.Images.Media.DATE_TAKEN
+            else MediaStore.Images.Media._ID
+
+        /** This cursor will hold the result of the query
+        and put all data in Cursor by sorting in descending order */
+        val cursor = App.instance.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            columns, null, null, "$orderBy DESC"
+        )
+        cursor?.moveToFirst()
+        val uriImage = Uri.withAppendedPath(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            "" + id
+        )
+        val galleryPicture = cursor?.getColumnIndexOrThrow(MediaStore.Images.Media._ID)?.toLong()?.let {
+            Wallpaper(
+                it, uriImage)
+        }
+        cursor?.close()
+        return galleryPicture
     }
 
     private fun initView() {
@@ -126,14 +173,16 @@ class MainFragment : Fragment(R.layout.fragment_main)
     }
 
     private fun addWallpaper() {
-        val fragmentManager: FragmentTransaction? =
-            activity?.supportFragmentManager?.beginTransaction()
-        val detailedFragment = GalleryFragment()
-        fragmentManager?.replace(
-                R.id.container,
-                detailedFragment
-            )
-            ?.addToBackStack(null)?.commit()
+
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(
+            Intent.createChooser(
+                intent,
+                getString(R.string.toolbar_title_choose_a_picture)
+            ), PICK_IMAGE_NUM
+        )
     }
 
     private fun initObservers() {
@@ -218,7 +267,6 @@ class MainFragment : Fragment(R.layout.fragment_main)
             }
 
             override fun onBillingServiceDisconnected() {
-                Log.d(LOGS, "billingResult.responseCode !=  OK")
                 /* we get here if something goes wrong */
                 /*   Try to restart the connection on the next request to
                     Google Play by calling the startConnection() method.*/

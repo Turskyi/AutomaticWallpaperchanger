@@ -6,8 +6,6 @@
     <string name="main_btn_txt_add_pictures">add wallpaper</string>
     <string name="main_tv_delay">Delay</string>
     <string name="main_tv_interval">Interval</string>
-    <string name="image">image</string>
     <string name="toolbar_title_choose_a_picture">Choose a wallpaper</string>
-    <string name="arrow">arrow</string>
     <string name="btn_txt_upgrade">UPGRADE</string>
 </resources>

@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DecodeFormat
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import kotlinx.android.synthetic.main.wallpaper_item.view.*
 import kotlinx.coroutines.CoroutineScope
@@ -53,19 +52,19 @@ class PicturesAdapter(private val onPictureClickListener:(wallpaper: Wallpaper) 
         val uri: Uri = wallpapers[position].uri
         Glide.with(holder.itemView.context)
             .load(uri)
-            .thumbnail(0.4f)
-            .transition(DrawableTransitionOptions.withCrossFade())
+            .thumbnail(0.3f)
+            .override(
+                PixelUtil.convertDipToPixels(holder.itemView.context, 100F),
+                PixelUtil.convertDipToPixels(holder.itemView.context, 100F)
+            )
             .apply(
                 RequestOptions()
                     .placeholder(R.drawable.loading_animation)
                     .error(R.drawable.ic_broken_image)
-            )
-            .priority(Priority.IMMEDIATE)
-            .format(DecodeFormat.PREFER_RGB_565)
-            .dontAnimate()
-            .override(
-                PixelUtil.convertDipToPixels(holder.itemView.context, 200F),
-                PixelUtil.convertDipToPixels(holder.itemView.context, 200F)
+                    .priority(Priority.IMMEDIATE)
+                    .dontAnimate()
+                    .format(DecodeFormat.PREFER_RGB_565)
+                    .dontTransform()
             )
             .into(holder.aciv)
     }

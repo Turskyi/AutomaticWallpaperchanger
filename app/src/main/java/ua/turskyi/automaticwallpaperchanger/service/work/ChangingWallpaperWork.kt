@@ -57,13 +57,15 @@ class ChangingWallpaperWork(context: Context, params: WorkerParameters) :
         val localPictures = database?.picturesDAO()?.getLocalPictures()
         val total = database?.picturesDAO()?.getTotalNum()
         val pictures = localPictures?.mapEntityListToModelList()
+        Log.d(LOGS, "before map uri to bitmap")
         val scheduledPicture = pictures?.get(next)?.uri?.mapUriToBitMap(applicationContext)
         val wallpaperManager = WallpaperManager.getInstance(applicationContext)
         Log.d(LOGS, "before load")
         wallpaperManager.setBitmap(scheduledPicture)
-        Log.d(LOGS, "loaded")
+        Log.d(LOGS, "loaded to homescreen")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             wallpaperManager.setBitmap(scheduledPicture, null, true, WallpaperManager.FLAG_LOCK)
+            Log.d(LOGS, "loaded to lockscteen")
         }
         if (total != null) {
             if (total > next.plus(1)) {
