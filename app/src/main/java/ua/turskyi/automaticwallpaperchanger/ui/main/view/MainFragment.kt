@@ -64,11 +64,20 @@ class MainFragment : Fragment(R.layout.fragment_main)
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == PICK_IMAGE_NUM && data != null) {
                 val uri: Uri? = data.data
-                val imageId = uri?.lastPathSegment?.takeLastWhile { it.isDigit() }?.toInt()
-                getContentUriFromUri(imageId)?.let {
-                    viewModel.addPictureToDB(
-                        it
-                    )
+                if (uri.toString().contains("com.android.providers.media")) {
+                    val imageId = uri?.lastPathSegment?.takeLastWhile { it.isDigit() }?.toInt()
+                    getContentUriFromUri(imageId)?.let {
+                        viewModel.addPictureToDB(
+                            it
+                        )
+                    }
+                } else {
+                    val id = System.currentTimeMillis()
+                    uri?.let { notLocalUri -> Wallpaper(id, notLocalUri) }?.let { wallpaper ->
+                        viewModel.addPictureToDB(
+                            wallpaper
+                        )
+                    }
                 }
             }
         } else {
@@ -177,6 +186,7 @@ class MainFragment : Fragment(R.layout.fragment_main)
         val intent = Intent()
         intent.type = "image/*"
         intent.action = Intent.ACTION_GET_CONTENT
+        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
         startActivityForResult(
             Intent.createChooser(
                 intent,
@@ -245,7 +255,6 @@ class MainFragment : Fragment(R.layout.fragment_main)
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    Log.d(LOGS, "billingResult.responseCode ==  OK")
                     /* The BillingClient is ready. You can query purchases here. */
                     /* here we can request information about purchases */
 

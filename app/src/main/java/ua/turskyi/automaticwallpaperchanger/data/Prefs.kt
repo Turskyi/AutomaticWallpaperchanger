@@ -27,6 +27,8 @@ class Prefs (context: Context) {
         set(value) = prefs.edit().putInt(NEXT_PIC, value).apply()
 
     var isUpgraded: Boolean
-        get() = prefs.getBoolean(IS_UPGRADED, false)
+//        get() = prefs.getBoolean(IS_UPGRADED, false)
+//        TODO: uncomment above delete bellow
+        get() = prefs.getBoolean(IS_UPGRADED, true)
         set(value) = prefs.edit().putBoolean(IS_UPGRADED, value).apply()
 }
