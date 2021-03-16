@@ -1,4 +1,4 @@
-package ua.turskyi.automaticwallpaperchanger.service.work
+package ua.turskyi.automaticwallpaperchanger.service
 
 import android.app.WallpaperManager
 import android.content.Context
@@ -9,7 +9,7 @@ import androidx.work.ListenableWorker.Result.success
 import ua.turskyi.automaticwallpaperchanger.App.Companion.UNLOCK
 import ua.turskyi.automaticwallpaperchanger.data.Constants
 import ua.turskyi.automaticwallpaperchanger.data.Constants.INTERVAL_KEY
-import ua.turskyi.automaticwallpaperchanger.data.Constants.LOGS
+import ua.turskyi.automaticwallpaperchanger.data.Constants.BILLING_LOGS
 import ua.turskyi.automaticwallpaperchanger.data.Constants.WORK_TAG
 import ua.turskyi.automaticwallpaperchanger.data.room.PicturesDataBase
 import ua.turskyi.automaticwallpaperchanger.prefs
@@ -25,7 +25,7 @@ class ChangingWallpaperWork(context: Context, params: WorkerParameters) :
 
             val interval = inputData.getInt(INTERVAL_KEY, 2)
             changeWallpaper(prefs.nextPic)
-            Log.d(LOGS, "next picture num ${prefs.nextPic}")
+            Log.d(BILLING_LOGS, "next picture num ${prefs.nextPic}")
             val currentTime = System.currentTimeMillis()
             val dueTime = Calendar.getInstance()
             dueTime.set(Calendar.HOUR_OF_DAY, getHour(context = applicationContext))
@@ -45,7 +45,7 @@ class ChangingWallpaperWork(context: Context, params: WorkerParameters) :
                 )
             return success()
         } catch (e: Exception) {
-            Log.d(LOGS, e.message!!)
+            Log.d(BILLING_LOGS, e.message!!)
             Log.d(UNLOCK, "${e.message}")
             return Result.retry()
         }
@@ -57,26 +57,26 @@ class ChangingWallpaperWork(context: Context, params: WorkerParameters) :
         val localPictures = database?.picturesDAO()?.getLocalPictures()
         val total = database?.picturesDAO()?.getTotalNum()
         val pictures = localPictures?.mapEntityListToModelList()
-        Log.d(LOGS, "before map uri to bitmap")
+        Log.d(BILLING_LOGS, "before map uri to bitmap")
         val scheduledPicture = pictures?.get(next)?.uri?.mapUriToBitMap(applicationContext)
         val wallpaperManager = WallpaperManager.getInstance(applicationContext)
-        Log.d(LOGS, "before load")
+        Log.d(BILLING_LOGS, "before load")
         wallpaperManager.setBitmap(scheduledPicture)
-        Log.d(LOGS, "loaded to homescreen")
+        Log.d(BILLING_LOGS, "loaded to homescreen")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             wallpaperManager.setBitmap(scheduledPicture, null, true, WallpaperManager.FLAG_LOCK)
-            Log.d(LOGS, "loaded to lockscteen")
+            Log.d(BILLING_LOGS, "loaded to lockscteen")
         }
         if (total != null) {
             if (total > next.plus(1)) {
-                Log.d(LOGS, "$total > ${next.plus(1)}")
+                Log.d(BILLING_LOGS, "$total > ${next.plus(1)}")
                 prefs.nextPic = next.plus(1)
             } else {
-                Log.d(LOGS, "next = 0")
+                Log.d(BILLING_LOGS, "next = 0")
                 prefs.nextPic = 0
             }
         } else {
-            Log.d(LOGS, "db is empty")
+            Log.d(BILLING_LOGS, "db is empty")
         }
     }
 

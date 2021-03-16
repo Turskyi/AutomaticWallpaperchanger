@@ -1,4 +1,4 @@
-package ua.turskyi.automaticwallpaperchanger.ui.main.viewmodel
+package ua.turskyi.automaticwallpaperchanger.ui.viewmodel
 
 import android.app.Application
 import android.util.Log

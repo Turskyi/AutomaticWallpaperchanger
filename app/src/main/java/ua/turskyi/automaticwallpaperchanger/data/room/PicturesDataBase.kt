@@ -10,8 +10,6 @@ import ua.turskyi.automaticwallpaperchanger.data.room.model.PictureLocal
 @Database(entities = [PictureLocal::class], version = 1, exportSchema = false)
 abstract class PicturesDataBase : RoomDatabase() {
 
-    abstract fun picturesDAO(): PicturesDAO
-
     companion object {
 
         private var INSTANCE: PicturesDataBase? = null
@@ -33,4 +31,6 @@ abstract class PicturesDataBase : RoomDatabase() {
             INSTANCE = null
         }
     }
+
+    abstract fun picturesDAO(): PicturesDAO
 }

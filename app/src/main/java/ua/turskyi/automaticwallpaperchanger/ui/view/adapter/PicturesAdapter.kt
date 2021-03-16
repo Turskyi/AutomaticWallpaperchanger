@@ -1,4 +1,4 @@
-package ua.turskyi.automaticwallpaperchanger.ui.main.view.adapter
+package ua.turskyi.automaticwallpaperchanger.ui.view.adapter
 
 import android.net.Uri
 import android.view.LayoutInflater
@@ -20,7 +20,8 @@ import ua.turskyi.automaticwallpaperchanger.R
 import ua.turskyi.automaticwallpaperchanger.model.Wallpaper
 import ua.turskyi.automaticwallpaperchanger.util.PixelUtil
 
-class PicturesAdapter(private val onPictureClickListener:(wallpaper: Wallpaper) -> Unit) : RecyclerView.Adapter<PicturesAdapter.ItemViewHolder>() {
+class PicturesAdapter(private val onPictureClickListener: (wallpaper: Wallpaper) -> Unit) :
+    RecyclerView.Adapter<PicturesAdapter.ItemViewHolder>() {
 
     private val adapterScope = CoroutineScope(Dispatchers.Default)
     private val wallpapers: MutableList<Wallpaper> = mutableListOf()
@@ -59,7 +60,6 @@ class PicturesAdapter(private val onPictureClickListener:(wallpaper: Wallpaper) 
             )
             .apply(
                 RequestOptions()
-                    .placeholder(R.drawable.loading_animation)
                     .error(R.drawable.ic_broken_image)
                     .priority(Priority.IMMEDIATE)
                     .dontAnimate()
@@ -71,8 +71,9 @@ class PicturesAdapter(private val onPictureClickListener:(wallpaper: Wallpaper) 
 
     override fun getItemCount() = wallpapers.size
 
-  inner  class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val aciv: AppCompatImageView = itemView.aciv
+
         init {
             itemView.acivHandle.setOnClickListener {
                 onPictureClickListener.invoke(wallpapers[layoutPosition])

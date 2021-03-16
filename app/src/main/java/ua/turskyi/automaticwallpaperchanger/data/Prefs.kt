@@ -12,7 +12,7 @@ class Prefs (context: Context) {
         private const val IS_ON_UNLOCK_ENABLED = "IS_ON_UNLOCK_ENABLED"
     }
 
-    private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_FILENAME, 0);
+    private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_FILENAME, 0)
 
     var isChangingStarted: Boolean
         get() = prefs.getBoolean(IS_STARTED, false)

@@ -9,8 +9,7 @@ import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import ua.turskyi.automaticwallpaperchanger.common.BaseActivity
 import ua.turskyi.automaticwallpaperchanger.data.Constants.PERMISSION_EXTERNAL_STORAGE
-import ua.turskyi.automaticwallpaperchanger.ui.main.view.MainFragment
-
+import ua.turskyi.automaticwallpaperchanger.ui.view.MainFragment
 
 class MainActivity : BaseActivity(R.layout.activity_main) {
 
